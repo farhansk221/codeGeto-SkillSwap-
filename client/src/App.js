@@ -14,11 +14,6 @@ import Screen5 from './Screen5';
 function App() {
   return (
     <div className="App">
-<<<<<<< HEAD
-     <Screen1/>
-     <Screen5/>
-      
-=======
       <Router>
         <Routes>
           <Route path="/" element={<Screen1 />} />
@@ -28,7 +23,6 @@ function App() {
           <Route path="/swap-requests" element={<Screen4 />} />
         </Routes>
       </Router>
->>>>>>> 7542a32666eb78ad83c1d9769fc8d81f0128449c
     </div>
   );
 }
