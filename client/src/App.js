@@ -1,5 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Screen1 from './Screen1';
 import Login from './Login';
 import Registeration from './Registeration';
@@ -9,8 +10,15 @@ import Screen4 from './Screen4';
 function App() {
   return (
     <div className="App">
-      <Screen1/>
-      
+      <Router>
+        <Routes>
+          <Route path="/" element={<Screen1 />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Registeration />} />
+          <Route path="/profile" element={<Screen3 />} />
+          <Route path="/swap-requests" element={<Screen4 />} />
+        </Routes>
+      </Router>
     </div>
   );
 }

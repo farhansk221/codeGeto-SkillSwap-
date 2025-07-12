@@ -107,10 +107,11 @@ with app.app_context():
 def index():
     return send_from_directory(app.static_folder, 'index.html')
 
-# Catch-all route for React BrowserRouter paths
+# # Catch-all route for React BrowserRouter paths
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve_react_app(path):
-    if os.path.exists(os.path.join(app.static_folder, path)):
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
@@ -158,6 +159,7 @@ def get_users():
 
 # API to get a specific user's data
 @app.route('/api/user/<int:user_id>', methods=['GET'])
+# @token_required
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify({
@@ -170,16 +172,21 @@ def get_user(user_id):
         'availability': user.avability or '',  # reuse this field if no dedicated availability
         'location': user.location or '',  # placeholder if not in DB
         'visibility': user.private or False,  # default visibility placeholder
+        'visibility': 'Private' if user.private else 'Public'
     })
 
 # API to update user data
 @app.route('/api/user/<int:user_id>', methods=['PUT'])
+@token_required
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.json
     user.name = data.get('name', user.name)
     user.skills_offered = data.get('skills_offered', user.skills_offered)
     user.skills_requested = data.get('skills_requested', user.skills_requested)
+    user.availability = data.get('availability', user.availability)
+    user.location = data.get('location', user.location)
+    user.visibility = data.get('visibility', user.visibility)
     # You can add user.availability = data.get('availability') here if that field exists in DB
     db.session.commit()
     return jsonify({'message': 'User updated'})
