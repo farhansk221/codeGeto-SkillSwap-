@@ -4,7 +4,7 @@ function Card() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
-  const cardsPerPage = 2;
+  const cardsPerPage = 4;
 
   useEffect(() => {
     fetch('/api/users')

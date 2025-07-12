@@ -159,7 +159,7 @@ def get_users():
 
 # API to get a specific user's data
 @app.route('/api/user/<int:user_id>', methods=['GET'])
-# @token_required
+@token_required
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify({
