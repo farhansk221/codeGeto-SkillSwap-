@@ -10,10 +10,7 @@ function App() {
   return (
     <div className="App">
       <Screen1/>
-      <Login/>
-      <Registeration/>
-      <Screen3/>
-      <Screen4/>
+      
     </div>
   );
 }
