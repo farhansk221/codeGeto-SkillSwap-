@@ -10,6 +10,7 @@ function Screen1() {
         <button className='mx-4 bg-blue-400 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded'>Availabilty</button>
             <input placeholder='' className='border-2 rounded-md border-black py-2 px-4'/>
             <button className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>Search</button>
+            
       </div>
       <div>
         <Card/>
