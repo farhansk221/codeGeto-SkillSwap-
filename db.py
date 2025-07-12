@@ -14,7 +14,7 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     private = db.Column(db.Boolean, default=False)
-    avability = db.Column(db.String(100))
+    availability = db.Column(db.String(100))
 
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)

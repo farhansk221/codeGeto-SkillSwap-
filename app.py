@@ -169,9 +169,8 @@ def get_user(user_id):
         'skills_offered': user.skills_offered,
         'skills_requested': user.skills_requested,
         'rating': user.rating,
-        'availability': user.avability or '',  # reuse this field if no dedicated availability
+        'availability': user.availability or '',  # reuse this field if no dedicated availability
         'location': user.location or '',  # placeholder if not in DB
-        'visibility': user.private or False,  # default visibility placeholder
         'visibility': 'Private' if user.private else 'Public'
     })
 
@@ -186,7 +185,9 @@ def update_user(user_id):
     user.skills_requested = data.get('skills_requested', user.skills_requested)
     user.availability = data.get('availability', user.availability)
     user.location = data.get('location', user.location)
-    user.visibility = data.get('visibility', user.visibility)
+    if 'private' in data:
+        user.visibility = 'Private' if data['private'] else 'Public'
+    db.session.commit()
     # You can add user.availability = data.get('availability') here if that field exists in DB
     db.session.commit()
     return jsonify({'message': 'User updated'})
