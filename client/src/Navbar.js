@@ -1,4 +1,5 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
 
  function Navbar() {
   return (
@@ -7,7 +8,8 @@ import React from 'react'
             <h2>
                 Skill Swap Platform
             </h2>
-            <button className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>
+            
+            <button to="/login" className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>
                 Login
             </button>
         </div>

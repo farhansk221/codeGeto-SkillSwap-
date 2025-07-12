@@ -1,6 +1,7 @@
 import React from 'react'
 import Navbar from './Navbar'
 import Card from './Card'
+import { Link } from 'react-router-dom'
 
 function Screen1() {
   return (
