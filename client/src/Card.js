@@ -27,12 +27,12 @@ function Card() {
   if (selectedUser) {
     return (
       <div className="p-10">
-        <button onClick={goBack} className="mb-4 text-blue-600 underline">← Back</button>
+        <button onClick={goBack} className=" px-2 py-1 bg-blue-600 font-bold border-2 border-black rounded-sm text-mb-4 text-white-600 underline">← Back</button>
         <img src={selectedUser.pp} className="w-20 h-20 rounded-full mb-4" alt="Avatar" />
         <h1 className="text-2xl font-bold">{selectedUser.name}</h1>
-        <p><strong>Skill:</strong> {selectedUser.skill}</p>
-        <p><strong>Needs:</strong> {selectedUser.skillneeded}</p>
-        <p><strong>Rating:</strong> ⭐ {selectedUser.rating}</p>
+        <p className='font-bold'><strong>Skill Offered:</strong> {selectedUser.skill}</p>
+        <p><strong>Skill Needs:</strong> {selectedUser.skillneeded}</p>
+        <p className='font-bold'><strong>Rating & Review:</strong> ⭐ {selectedUser.rating}</p>
       </div>
     );
   }
@@ -55,10 +55,10 @@ function Card() {
             <div>
               <h2 className="text-lg font-bold text-gray-800">{user.name}</h2>
               <p className="text-sm text-gray-600">
-                Skill: <span className="font-medium">{user.skill}</span>
+                Skill Offered: <span className="font-medium">{user.skill}</span>
               </p>
               <p className="text-sm text-gray-600">
-                Needs: <span className="font-medium">{user.skillneeded}</span>
+                Skills Needs : <span className="font-medium">{user.skillneeded}</span>
               </p>
             </div>
           </div>
