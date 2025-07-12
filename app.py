@@ -152,9 +152,37 @@ def get_users():
             'skill': user.skills_offered,
             'skillneeded': user.skills_requested,
             'isbuttonreq': True,
-            'rating': user.rating
+            'rating': user.rating,
         })
     return jsonify(data)
+
+# API to get a specific user's data
+@app.route('/api/user/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'id': user.id,
+        'name': user.name,
+        # 'email': user.email,
+        'skills_offered': user.skills_offered,
+        'skills_requested': user.skills_requested,
+        'rating': user.rating,
+        'availability': user.avability or '',  # reuse this field if no dedicated availability
+        'location': user.location or '',  # placeholder if not in DB
+        'visibility': user.private or False,  # default visibility placeholder
+    })
+
+# API to update user data
+@app.route('/api/user/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    data = request.json
+    user.name = data.get('name', user.name)
+    user.skills_offered = data.get('skills_offered', user.skills_offered)
+    user.skills_requested = data.get('skills_requested', user.skills_requested)
+    # You can add user.availability = data.get('availability') here if that field exists in DB
+    db.session.commit()
+    return jsonify({'message': 'User updated'})
 
 @app.route('/api/swap', methods=['POST'])
 def create_swap():

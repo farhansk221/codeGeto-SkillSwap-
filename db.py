@@ -13,6 +13,8 @@ class User(db.Model):
     location = db.Column(db.String(100))
     is_verified = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
+    private = db.Column(db.Boolean, default=False)
+    avability = db.Column(db.String(100))
 
 class SwapRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
