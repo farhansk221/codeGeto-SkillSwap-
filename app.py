@@ -8,7 +8,66 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import jwt
+import datetime
+from functools import wraps
+
+from flask_mail import Mail, Message
+import random
+
+email_otps = {}
+
+def send_otp_email(to_email, otp):
+    msg = Message(
+        subject="Your OTP Code",
+        sender=app.config['MAIL_USERNAME'],
+        recipients=[to_email],
+        body=f"Your verification OTP is: {otp}"
+    )
+    mail.send(msg)
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 401
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.get(data['user_id'])
+        except:
+            return jsonify({'error': 'Invalid token!'}), 403
+
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    @token_required
+    def decorated(current_user, *args, **kwargs):
+        if not current_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(current_user, *args, **kwargs)
+    return decorated
+
 app = Flask(__name__, static_folder='client/build', static_url_path='')
+
+# Route to request OTP
+@app.route('/api/request-otp', methods=['POST'])
+def request_otp():
+    data = request.json
+    email = data['email']
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered'}), 400
+
+    otp = random.randint(100000, 999999)
+    email_otps[email] = otp
+    send_otp_email(email, otp)
+    return jsonify({'message': 'OTP sent'})
+
 
 CORS(app)
 
@@ -16,8 +75,31 @@ CORS(app)
 app.config.from_object(Config)
 db.init_app(app)
 
+# Mail
+mail = Mail(app)
+
 with app.app_context():
     db.create_all()
+
+    # Insert dummy users
+    users_data = [
+        {"name": "Farhan", "email": "farhan@example.com", "password": "1234", "skills_offered": "JavaScript", "skills_requested": "Python", "rating": 3.9, "is_verified":True, "is_admin": True},
+        {"name": "Aisha", "email": "aisha@example.com", "password": "1234", "skills_offered": "React", "skills_requested": "Node.js", "rating": 4.2, "is_verified":True},
+        {"name": "Om", "email": "om@example.com", "password": "1234", "skills_offered": "Python", "skills_requested": "Node.js", "rating": 4.2, "is_verified":True, "is_admin": True},
+        {"name": "Rahul", "email": "rahul@example.com", "password": "1234", "skills_offered": "Java", "skills_requested": "Node.js", "rating": 4.2, "is_verified":True}
+    ]
+
+    for u in users_data:
+        if not User.query.filter_by(email=u["email"]).first():
+            db.session.add(User(
+                name=u["name"],
+                email=u["email"],
+                password=generate_password_hash(u["password"]),
+                rating=u["rating"],
+                skills_offered=u["skills_offered"],
+                skills_requested=u["skills_requested"]
+            ))
+    db.session.commit()
 
 # Serve the React app (index.html)
 @app.route('/')
@@ -37,12 +119,14 @@ def hello():
     return jsonify(message='Hello from Flask!')
 
 @app.route('/api/users', methods=['GET'])
+# @token_required
 def get_users():
     users = User.query.all()
     return jsonify([{
         'id': u.id,
         'name': u.name,
         'email': u.email,
+        'rating': u.rating,
         'skills_offered': u.skills_offered,
         'skills_requested': u.skills_requested
     } for u in users])
@@ -79,40 +163,62 @@ def get_user_swaps(user_id):
         } for s in received]
     })
 
+@app.route('/api/admin', methods=['GET'])
+@admin_required
+def admin():
+    return jsonify(message='Hello Admin!')
+
 # Register a new user
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({'error': 'Email already exists'}), 400
+    email = data['email']
+    entered_otp = data.get('otp')
+
+    if email not in email_otps or str(email_otps[email]) != str(entered_otp):
+        return jsonify({'error': 'Invalid or expired OTP'}), 400
 
     hashed_password = generate_password_hash(data['password'])
     new_user = User(
         name=data['name'],
-        email=data['email'],
-        password=hashed_password,  # In production, hash this!
+        email=email,
+        password=hashed_password,
         skills_offered=data.get('skills_offered', ''),
-        skills_requested=data.get('skills_requested', '')
+        skills_requested=data.get('skills_requested', ''),
+        rating=data.get('rating', 0.0),
+        is_verified=True
     )
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'User registered', 'user_id': new_user.id})
+    del email_otps[email]
+    return jsonify({'message': 'User registered'})
 
 # Login
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    user = User.query.filter_by(email=data['email'], password=data['password']).first()
+    user = User.query.filter_by(email=data['email']).first()
     if not user or not check_password_hash(user.password, data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
+    if not user.is_verified:
+        return jsonify({'error': 'Email not verified'}), 403
+
+    token = jwt.encode({
+        'user_id': user.id,
+        'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
     return jsonify({
         'message': 'Login successful',
+        'token': token,
         'user': {
             'id': user.id,
             'name': user.name,
             'email': user.email,
             'skills_offered': user.skills_offered,
-            'skills_requested': user.skills_requested
+            'skills_requested': user.skills_requested,
+            'rating': user.rating,
+            'is_admin': user.is_admin
         }
     })
 
