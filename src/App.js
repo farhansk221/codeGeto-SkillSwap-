@@ -5,6 +5,8 @@ function App() {
   return (
     <div className="App">
       <h1 className='bg-red-400 font-bold text-white'>SkillSwap</h1>
+            <h1 className='bg-red-400 font-bold text-white'>SkillSwap</h1>
+
     </div>
   );
 }
