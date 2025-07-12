@@ -8,6 +8,35 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import jwt
+import datetime
+from functools import wraps
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 401
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = User.query.get(data['user_id'])
+        except:
+            return jsonify({'error': 'Invalid token!'}), 403
+
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+def admin_required(f):
+    @wraps(f)
+    @token_required
+    def decorated(current_user, *args, **kwargs):
+        if not current_user.is_admin:
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(current_user, *args, **kwargs)
+    return decorated
+
 app = Flask(__name__, static_folder='client/build', static_url_path='')
 
 CORS(app)
@@ -21,9 +50,9 @@ with app.app_context():
 
     # Insert dummy users
     users_data = [
-        {"name": "Farhan", "email": "farhan@example.com", "password": "1234", "skills_offered": "JavaScript", "skills_requested": "Python", "rating": 3.9},
+        {"name": "Farhan", "email": "farhan@example.com", "password": "1234", "skills_offered": "JavaScript", "skills_requested": "Python", "rating": 3.9, "is_admin": True},
         {"name": "Aisha", "email": "aisha@example.com", "password": "1234", "skills_offered": "React", "skills_requested": "Node.js", "rating": 4.2},
-        {"name": "Om", "email": "om@example.com", "password": "1234", "skills_offered": "Python", "skills_requested": "Node.js", "rating": 4.2},
+        {"name": "Om", "email": "om@example.com", "password": "1234", "skills_offered": "Python", "skills_requested": "Node.js", "rating": 4.2, "is_admin": True},
         {"name": "Rahul", "email": "rahul@example.com", "password": "1234", "skills_offered": "Java", "skills_requested": "Node.js", "rating": 4.2}
     ]
 
@@ -57,6 +86,7 @@ def hello():
     return jsonify(message='Hello from Flask!')
 
 @app.route('/api/users', methods=['GET'])
+# @token_required
 def get_users():
     users = User.query.all()
     return jsonify([{
@@ -100,6 +130,11 @@ def get_user_swaps(user_id):
         } for s in received]
     })
 
+@app.route('/api/admin', methods=['GET'])
+@admin_required
+def admin():
+    return jsonify(message='Hello Admin!')
+
 # Register a new user
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -126,6 +161,12 @@ def login():
     user = User.query.filter_by(email=data['email'], password=data['password']).first()
     if not user or not check_password_hash(user.password, data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
+    
+    token = jwt.encode({
+        'user_id': user.id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
     return jsonify({
         'message': 'Login successful',
         'user': {

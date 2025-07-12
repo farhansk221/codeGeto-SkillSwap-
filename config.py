@@ -3,3 +3,4 @@ import os
 class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = "e64bd90067f5a8437a56c0ddd45c02936e2349b016e0701d56bf03535738683a"
