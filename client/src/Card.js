@@ -96,13 +96,13 @@ function Card() {
           <button
             key={i + 1}
             onClick={() => changePage(i + 1)}
-            className={`px-4 py-2 border rounded ${
+            className={`text-black  ${
               currentPage === i + 1
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-blue-500 border-blue-500'
+                ? 'font-2xl text-black'
+                : 'text-black-500'
             }`}
           >
-            {i + 1}
+           {i+1}
           </button>
         ))}
       </div>
