@@ -11,6 +11,12 @@ import {Link} from 'react-router-dom'
             <a href="/#/login"><button className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>
                 Login
             </button></a>
+            <a href="/#/register"><button className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>
+                Register
+            </button></a>
+            <a href="/#/profile"><button className='mx-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded'>
+                Profile
+            </button></a>
         </div>
     </div>
   )
