@@ -14,6 +14,7 @@ from functools import wraps
 
 from flask_mail import Mail, Message
 import random
+import hashlib
 
 email_otps = {}
 
@@ -118,18 +119,42 @@ def serve_react_app(path):
 def hello():
     return jsonify(message='Hello from Flask!')
 
+def generate_color_from_text(text):
+    hash_digest = hashlib.md5(text.encode()).hexdigest()
+    r = int(hash_digest[0:2], 16)
+    g = int(hash_digest[2:4], 16)
+    b = int(hash_digest[4:6], 16)
+    r = max(100, r)
+    g = max(100, g)
+    b = max(100, b)
+    return f"rgb({r % 256}, {g % 256}, {b % 256})"
+
+def generate_svg_avatar(name, color):
+    initials = name[0].upper()
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+        <rect width="100%" height="100%" fill="{color}"/>
+        <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="32" fill="white">{initials}</text>
+    </svg>'''
+    return f"data:image/svg+xml;utf8,{svg}"
+
 @app.route('/api/users', methods=['GET'])
 # @token_required
 def get_users():
     users = User.query.all()
-    return jsonify([{
-        'id': u.id,
-        'name': u.name,
-        'email': u.email,
-        'rating': u.rating,
-        'skills_offered': u.skills_offered,
-        'skills_requested': u.skills_requested
-    } for u in users])
+    data = []
+    for user in users:
+        color = generate_color_from_text(user.email)
+        avatar_svg = generate_svg_avatar(user.name, color)
+        data.append({
+            'id': user.id,
+            'pp': avatar_svg,
+            'name': user.name,
+            'skill': user.skills_offered,
+            'skillneeded': user.skills_requested,
+            'isbuttonreq': True,
+            'rating': user.rating
+        })
+    return jsonify(data)
 
 @app.route('/api/swap', methods=['POST'])
 def create_swap():

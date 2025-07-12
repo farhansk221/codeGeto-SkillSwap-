@@ -1,50 +1,16 @@
-import React from 'react';
-import { useState } from 'react';
-
-const users = [
-  {
-    id: 1,
-    pp: 'Image', 
-    name: 'Farhan',
-    skill: 'JavaScript',
-    skillneeded: 'Python',
-    isbuttonreq: true,
-    rating: 3.9,
-  },
-  {
-    id: 2,
-    pp: 'Image',
-    name: 'Aisha',
-    skill: 'React',
-    skillneeded: 'Node.js',
-    isbuttonreq: true,
-    rating: 4.2,
-  },
-  {
-    id: 3,
-    pp: 'Image',
-    name: 'Om',
-    skill: 'Python',
-    skillneeded: 'Node.js',
-    isbuttonreq: true,
-    rating: 4.2,
-  },
-  {
-    id: 4,
-    pp: 'Image',
-    name: 'Rahul',
-    skill: 'Java',
-    skillneeded: 'Node.js',
-    isbuttonreq: true,
-    rating: 4.2,
-  },
- 
-];
+import React, { useEffect, useState } from 'react';
 
 function Card() {
-
-    const [currentPage, setCurrentPage] = useState(1);
+  const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 2;
+
+  useEffect(() => {
+    fetch('/api/users')
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(err => console.error('Failed to load users:', err));
+  }, []);
 
   const indexOfLast = currentPage * cardsPerPage;
   const indexOfFirst = indexOfLast - cardsPerPage;
@@ -55,10 +21,9 @@ function Card() {
     setCurrentPage(page);
   };
 
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 mt-20">
-      {users.map((user) => (
+      {currentUsers.map((user) => (
         <div
           key={user.id}
           className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
@@ -91,18 +56,18 @@ function Card() {
           </div>
         </div>
       ))}
-       <div className="flex justify-center mt-6 space-x-2">
+      <div className="flex justify-center mt-6 space-x-2 col-span-full">
         {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i + 1}
             onClick={() => changePage(i + 1)}
-            className={`text-black  ${
+            className={`px-3 py-1 rounded ${
               currentPage === i + 1
-                ? 'font-2xl text-black'
-                : 'text-black-500'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-black'
             }`}
           >
-           {i+1}
+            {i + 1}
           </button>
         ))}
       </div>
