@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 
 const users = [
   {
@@ -37,9 +38,24 @@ const users = [
     isbuttonreq: true,
     rating: 4.2,
   },
+ 
 ];
 
 function Card() {
+
+    const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 2;
+
+  const indexOfLast = currentPage * cardsPerPage;
+  const indexOfFirst = indexOfLast - cardsPerPage;
+  const currentUsers = users.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(users.length / cardsPerPage);
+
+  const changePage = (page) => {
+    setCurrentPage(page);
+  };
+
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 mt-20">
       {users.map((user) => (
@@ -75,6 +91,21 @@ function Card() {
           </div>
         </div>
       ))}
+       <div className="flex justify-center mt-6 space-x-2">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => changePage(i + 1)}
+            className={`px-4 py-2 border rounded ${
+              currentPage === i + 1
+                ? 'bg-blue-500 text-white'
+                : 'bg-white text-blue-500 border-blue-500'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
