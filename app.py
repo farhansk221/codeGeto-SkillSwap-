@@ -19,6 +19,26 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+    # Insert dummy users
+    users_data = [
+        {"name": "Farhan", "email": "farhan@example.com", "password": "1234", "skills_offered": "JavaScript", "skills_requested": "Python", "rating": 3.9},
+        {"name": "Aisha", "email": "aisha@example.com", "password": "1234", "skills_offered": "React", "skills_requested": "Node.js", "rating": 4.2},
+        {"name": "Om", "email": "om@example.com", "password": "1234", "skills_offered": "Python", "skills_requested": "Node.js", "rating": 4.2},
+        {"name": "Rahul", "email": "rahul@example.com", "password": "1234", "skills_offered": "Java", "skills_requested": "Node.js", "rating": 4.2}
+    ]
+
+    for u in users_data:
+        if not User.query.filter_by(email=u["email"]).first():
+            db.session.add(User(
+                name=u["name"],
+                email=u["email"],
+                password=generate_password_hash(u["password"]),
+                rating=u["rating"],
+                skills_offered=u["skills_offered"],
+                skills_requested=u["skills_requested"]
+            ))
+    db.session.commit()
+
 # Serve the React app (index.html)
 @app.route('/')
 def index():
@@ -43,6 +63,7 @@ def get_users():
         'id': u.id,
         'name': u.name,
         'email': u.email,
+        'rating': u.rating,
         'skills_offered': u.skills_offered,
         'skills_requested': u.skills_requested
     } for u in users])
