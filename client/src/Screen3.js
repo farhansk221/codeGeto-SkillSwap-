@@ -61,6 +61,9 @@ function Screen3() {
                         >
                             Save
                         </button>
+                        <button>Om Shaikh</button>
+                        <button>Om Shaikh</button>
+                        <button>Om Shaikh</button>
 
                         
                     </div>
