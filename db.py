@@ -10,6 +10,7 @@ class User(db.Model):
     rating = db.Column(db.Float, default=0.0)
     skills_offered = db.Column(db.Text)
     skills_requested = db.Column(db.Text)
+    location = db.Column(db.String(100))
     is_verified = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
 
