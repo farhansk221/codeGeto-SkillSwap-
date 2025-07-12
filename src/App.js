@@ -1,13 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import Screen1 from './Screen1';
-import Card from './Card';
 
 function App() {
   return (
     <div className="App">
-      <Screen1/>
-      
+      <h1 className='bg-red-400 font-bold text-white'>SkillSwap</h1>
+            <h1 className='bg-red-400 font-bold text-white'>SkillSwap</h1>
+
     </div>
   );
 }
