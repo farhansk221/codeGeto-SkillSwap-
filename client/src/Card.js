@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 function Card() {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState(null);
   const cardsPerPage = 2;
 
   useEffect(() => {
@@ -17,16 +18,33 @@ function Card() {
   const currentUsers = users.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(users.length / cardsPerPage);
 
-  const changePage = (page) => {
-    setCurrentPage(page);
-  };
+  const changePage = (page) => setCurrentPage(page);
 
+  const openProfile = (user) => setSelectedUser(user);
+  const goBack = () => setSelectedUser(null);
+
+  // 👤 Profile view
+  if (selectedUser) {
+    return (
+      <div className="p-10">
+        <button onClick={goBack} className="mb-4 text-blue-600 underline">← Back</button>
+        <img src={selectedUser.pp} className="w-20 h-20 rounded-full mb-4" alt="Avatar" />
+        <h1 className="text-2xl font-bold">{selectedUser.name}</h1>
+        <p><strong>Skill:</strong> {selectedUser.skill}</p>
+        <p><strong>Needs:</strong> {selectedUser.skillneeded}</p>
+        <p><strong>Rating:</strong> ⭐ {selectedUser.rating}</p>
+      </div>
+    );
+  }
+
+  // 🧾 List view
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4 mt-20">
       {currentUsers.map((user) => (
         <div
           key={user.id}
-          className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+          className="bg-white shadow-md rounded-lg p-4 border border-gray-200 cursor-pointer"
+          onClick={() => openProfile(user)}
         >
           <div className="flex items-center space-x-4">
             <img
