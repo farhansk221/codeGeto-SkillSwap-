@@ -73,7 +73,7 @@ function Screen3() {
       availability: form.availability.join(','),
     };
 
-    const res = await fetch(`/api/user/${userId}`, {
+    const res = await fetch(`/api/user/update/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

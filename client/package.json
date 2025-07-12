@@ -10,11 +10,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3",
-<<<<<<< HEAD
     "react-scripts": "^5.0.1",
-=======
-    "react-scripts": "5.0.1",
->>>>>>> 7542a32666eb78ad83c1d9769fc8d81f0128449c
     "web-vitals": "^2.1.4"
   },
   "scripts": {
